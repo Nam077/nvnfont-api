@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ClientsModule, Transport } from '@nestjs/microservices';
+import Redis from 'ioredis';
 
 @Module({
   imports: [
@@ -26,7 +27,17 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
       },
     ]),
   ],
-  controllers: [], // Thêm controller của user-service ở đây
-  providers: [], // Thêm các service liên quan đến user-service
+  providers: [
+    {
+      provide: 'REDIS_CLIENT',
+      useFactory: (configService: ConfigService) => {
+        return new Redis({
+          host: configService.get('REDIS_HOST'),
+          port: configService.get('REDIS_PORT'),
+        });
+      },
+      inject: [ConfigService],
+    },
+  ],
 })
 export class AppModule {}
