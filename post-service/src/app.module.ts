@@ -1,16 +1,16 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import { Redis } from 'ioredis';
+import Redis from 'ioredis';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
-      isGlobal: true,
+      isGlobal: true, // ConfigService có sẵn trong toàn bộ ứng dụng
     }),
     ClientsModule.registerAsync([
       {
-        name: 'POST_SERVICE',
+        name: 'POST_SERVICE', // Đăng ký post-service cho RabbitMQ
         useFactory: (configService: ConfigService) => ({
           transport: Transport.RMQ,
           options: {
@@ -29,7 +29,7 @@ import { Redis } from 'ioredis';
   ],
   providers: [
     {
-      provide: 'REDIS_CLIENT',
+      provide: 'REDIS_CLIENT', // Cấu hình Redis client
       useFactory: (configService: ConfigService) => {
         return new Redis({
           host: configService.get('REDIS_HOST'),
