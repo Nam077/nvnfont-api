@@ -5,18 +5,18 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
 @Module({
   imports: [
     ConfigModule.forRoot({
-      isGlobal: true, // ConfigModule có thể sử dụng ở mọi nơi trong ứng dụng
+      isGlobal: true,
     }),
     ClientsModule.registerAsync([
       {
-        name: 'CATEGORY_TAG_SERVICE', // Tên inject, có thể cố định
+        name: 'CATEGORY_TAG_SERVICE',
         useFactory: (configService: ConfigService) => ({
           transport: Transport.RMQ,
           options: {
             urls: [
               `amqp://${configService.get('RABBITMQ_USER')}:${configService.get('RABBITMQ_PASS')}@${configService.get('RABBITMQ_HOST')}`,
             ],
-            queue: configService.get('RABBITMQ_QUEUE_CATEGORY_TAG'), // Tên hàng đợi từ env
+            queue: configService.get('RABBITMQ_QUEUE_CATEGORY_TAG'),
             queueOptions: {
               durable: false,
             },
@@ -32,7 +32,7 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
             urls: [
               `amqp://${configService.get('RABBITMQ_USER')}:${configService.get('RABBITMQ_PASS')}@${configService.get('RABBITMQ_HOST')}`,
             ],
-            queue: configService.get('RABBITMQ_QUEUE_COMMENT'), // Tên hàng đợi từ env
+            queue: configService.get('RABBITMQ_QUEUE_COMMENT'),
             queueOptions: {
               durable: false,
             },
@@ -48,7 +48,7 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
             urls: [
               `amqp://${configService.get('RABBITMQ_USER')}:${configService.get('RABBITMQ_PASS')}@${configService.get('RABBITMQ_HOST')}`,
             ],
-            queue: configService.get('RABBITMQ_QUEUE_POST'), // Tên hàng đợi từ env
+            queue: configService.get('RABBITMQ_QUEUE_POST'),
             queueOptions: {
               durable: false,
             },
@@ -64,7 +64,7 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
             urls: [
               `amqp://${configService.get('RABBITMQ_USER')}:${configService.get('RABBITMQ_PASS')}@${configService.get('RABBITMQ_HOST')}`,
             ],
-            queue: configService.get('RABBITMQ_QUEUE_USER'), // Tên hàng đợi từ env
+            queue: configService.get('RABBITMQ_QUEUE_USER'),
             queueOptions: {
               durable: false,
             },
