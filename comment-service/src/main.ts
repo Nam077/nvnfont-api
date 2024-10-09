@@ -1,8 +1,30 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { MicroserviceOptions, Transport } from '@nestjs/microservices';
+import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  await app.listen(3000);
+
+  const configService = app.get(ConfigService);
+  const rabbitUser = configService.get<string>('RABBITMQ_USER');
+  const rabbitPass = configService.get<string>('RABBITMQ_PASS');
+  const rabbitHost = configService.get<string>('RABBITMQ_HOST');
+  const rabbitQueue = configService.get<string>('RABBITMQ_QUEUE_COMMENT');
+
+  app.connectMicroservice<MicroserviceOptions>({
+    transport: Transport.RMQ,
+    options: {
+      urls: [`amqp://${rabbitUser}:${rabbitPass}@${rabbitHost}`],
+      queue: rabbitQueue,
+      queueOptions: {
+        durable: false,
+      },
+    },
+  });
+
+  await app.startAllMicroservices();
+  await app.listen(3004); // comment-service chạy trên port 3004
 }
+
 bootstrap();
