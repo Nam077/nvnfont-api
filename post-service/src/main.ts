@@ -1,30 +1,34 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { ConfigService } from '@nestjs/config';
+import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-
   const configService = app.get(ConfigService);
-  const rabbitUser = configService.get<string>('RABBITMQ_USER');
-  const rabbitPass = configService.get<string>('RABBITMQ_PASS');
-  const rabbitHost = configService.get<string>('RABBITMQ_HOST');
-  const rabbitQueue = configService.get<string>('RABBITMQ_QUEUE_POST');
 
+  // Lấy cổng từ file .env
+  const port = configService.get<number>('POST_SERVICE_PORT');
+
+  // Kết nối với RabbitMQ cho post-service
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.RMQ,
     options: {
-      urls: [`amqp://${rabbitUser}:${rabbitPass}@${rabbitHost}`],
-      queue: rabbitQueue,
+      urls: [
+        `amqp://${configService.get('RABBITMQ_USER')}:${configService.get('RABBITMQ_PASS')}@${configService.get('RABBITMQ_HOST')}`,
+      ],
+      queue: configService.get('RABBITMQ_QUEUE_POST'),
       queueOptions: {
         durable: false,
       },
     },
   });
 
+  // Bắt đầu tất cả các microservice đã cấu hình
   await app.startAllMicroservices();
-  await app.listen(3003); // post-service chạy trên port 3003
+
+  // Lắng nghe ở cổng của post-service
+  await app.listen(port);
 }
 
 bootstrap();
